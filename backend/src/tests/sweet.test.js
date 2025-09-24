@@ -1,3 +1,4 @@
+
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
@@ -60,6 +61,22 @@ describe('Sweets API', () => {
         .send({ name: 'Unauthorized Sweet', category: 'Test', price: 10, quantity: 100 });
       
       expect(res.statusCode).toBe(403);
+    });
+  });
+
+  describe('GET /api/sweets', () => {
+    it('should allow anyone to get all sweets', async () => {
+      const res = await request(app).get('/api/sweets');
+      expect(res.statusCode).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+    });
+
+    it('should allow searching for sweets by name', async () => {
+      const res = await request(app).get('/api/sweets/search?q=Test');
+      expect(res.statusCode).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body[0].name).toBe('Test Sweet');
     });
   });
 });
