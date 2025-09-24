@@ -1,4 +1,3 @@
-
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
@@ -77,6 +76,27 @@ describe('Sweets API', () => {
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body[0].name).toBe('Test Sweet');
+    });
+  });
+
+  describe('PUT /api/sweets/:id', () => {
+    it('should allow an admin to update a sweet', async () => {
+      const res = await request(app)
+        .put(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ price: 12 });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('price', 12);
+    });
+
+    it('should not allow a regular user to update a sweet', async () => {
+      const res = await request(app)
+        .put(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ price: 15 });
+
+      expect(res.statusCode).toBe(403);
     });
   });
 });
