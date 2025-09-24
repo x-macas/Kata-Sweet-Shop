@@ -1,3 +1,4 @@
+
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
@@ -97,6 +98,29 @@ describe('Sweets API', () => {
         .send({ price: 15 });
 
       expect(res.statusCode).toBe(403);
+    });
+  });
+
+  describe('POST /api/sweets/:id/purchase', () => {
+    it('should allow an authenticated user to purchase a sweet', async () => {
+      const res = await request(app)
+        .post(`/api/sweets/${sweetId}/purchase`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('quantity', 99);
+    });
+  });
+
+  describe('POST /api/sweets/:id/restock', () => {
+    it('should allow an admin to restock a sweet', async () => {
+      const res = await request(app)
+        .post(`/api/sweets/${sweetId}/restock`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ amount: 50 });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('quantity', 149);
     });
   });
 });
