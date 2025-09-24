@@ -1,4 +1,3 @@
-
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
@@ -121,6 +120,25 @@ describe('Sweets API', () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toHaveProperty('quantity', 149);
+    });
+  });
+
+  describe('DELETE /api/sweets/:id', () => {
+    it('should not allow a regular user to delete a sweet', async () => {
+      const res = await request(app)
+        .delete(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+      
+      expect(res.statusCode).toBe(403);
+    });
+
+    it('should allow an admin to delete a sweet', async () => {
+      const res = await request(app)
+        .delete(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('message', 'Sweet deleted successfully');
     });
   });
 });
